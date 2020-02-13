@@ -1,5 +1,5 @@
 steps:
-    - task: Bash@3
-    inputs:
-        targetType: 'inline'
-        script: echo foo bar
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: echo foo bar
