@@ -103,7 +103,12 @@ resource "azurerm_role_definition" "vnet-peering" {
   scope    = data.azurerm_subscription.current.id
 
   permissions {
-    actions     = ["Microsoft.Network/virtualNetworks/virtualNetworkPeerings/write", "Microsoft.Network/virtualNetworks/peer/action", "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/read", "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/delete"]
+    actions     = [
+      "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/write",
+      "Microsoft.Network/virtualNetworks/peer/action", 
+      "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/read", 
+      "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/delete"
+    ]
     not_actions = []
   }
 

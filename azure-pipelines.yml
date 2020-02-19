@@ -1,5 +1,38 @@
-steps:
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: echo foo bar
+variables:
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build artificat
+  jobs:
+  - job: Build
+    displayName: Build job
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: echo build complete
+      - task: PublishPipelineArtifact@1
+        inputs:
+          artifact: 'deployment'
+          patterns: '**/*.tf'
+          path: $(Build.SourcesDirectory)/src
+
+- stage: Deploy
+  displayName: Deploy artificat
+  jobs:
+  - job: Deploy
+    displayName: Deploy job
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: echo deploy complete
+
+
+    
+
