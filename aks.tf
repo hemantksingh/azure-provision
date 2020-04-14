@@ -5,7 +5,10 @@ variable "env" {
 
 variable "ssh_public_key" {
   type    = string
-  default = "~/.ssh/id_rsa.pub"
+  default = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDNcw58KR49h5C8xzajfeWP+LL6pAfVev3b+z/QBKFSjqfY7UVYA8OMh/Ioycv2FC0gflVF4uSch+gcaM1UzPhmmzxLI3jwccBLSMwLu4PvQeYSGILAnmiYEhpcxBRhvjcMUJOLA7aVkEDXN1FFPC5GUi70jfPeoqD7fWb4pd0hJVL8cdp3yxtcw49t1lO4YoIk+3n55viCfQzDbZf/brXVNhi+TCTj/v4+uCl13ZT5N5anH2yaEp2pl6ya3XxMmpmPUcRw9KX7WiyCLuHu1pfICssMEjmN+uNhAmA2D/DeI00PpAqS/0PJ0Mk6+dFLjrcMbnTnFrqjiZHu+1z3q1szOdo8PgWv/xJLCBAJEpDaIEMHhWl8mtkJMttm5yIqzJngd2BySO6IJcFgBptWV9als4vaLxIEbpxG9nxI8+uxM3dLKzy/X4V9ynAomn7v4qJeIoS0FCzJKOK+avp5E6SOfkZekWTncxCD2l6FCKP+3hSJzX/abp9qpaAiutS7yqZGP3IpX33pkXWHB8pHFThl4yNbcexaXrLiJVexGr5iBcNCT99zBCKhs/IKgHCGrXwJhh4JeshLPIwIFM+4ElLA9GxFL4weRfTxXZNYxPAxiMPuiXvimptg/LW430A0X8wB7p2cPlRDs7cOOiFOuk2WrUds6hHLOo2fuMCzqpTnuw=="
+}
+
+variable "subscription_id" {
 }
 
 variable "client_id" {
@@ -14,8 +17,21 @@ variable "client_id" {
 variable "client_secret" {
 }
 
+variable "tenant_id" {
+}
+
+terraform {
+  backend "azurerm" {}
+}
+
 provider "azurerm" {
   version = "=2.4.0"
+
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
+
   features {}
 }
 
@@ -34,7 +50,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     admin_username = "hkumar"
 
     ssh_key {
-        key_data = file(var.ssh_public_key)
+        key_data = var.ssh_public_key
     }
   }
 
