@@ -6,10 +6,10 @@ Provision azure resources e.g (AKS, VNets) using terraform and deploy apps with 
 ```sh
 
 # Build the docker image
-docker build -t hemantksingh/terraform .
+docker build -t hemantksingh/azurepaas .
 
 # Run terraform provision in a container
-docker run -e ARM_CLIENT_ID=$AZURE_CLIENT_ID -e ARM_CLIENT_SECRET=$AZURE_CLIENT_SECRET -e ARM_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID -e ARM_TENANT_ID=$AZURE_TENANT_ID -it hemantksingh/terraform /bin/bash
+docker run -e ARM_CLIENT_ID=$AZURE_CLIENT_ID -e ARM_CLIENT_SECRET=$AZURE_CLIENT_SECRET -e ARM_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID -e ARM_TENANT_ID=$AZURE_TENANT_ID -it hemantksingh/azurepaas /bin/bash
 
 terraform plan -out sec.tfplan
 terraform apply "sec.tfplan"
