@@ -41,5 +41,5 @@ After deploying the cluster you can access the [kubernetes dashboard](https://do
 ### AKS deprovision
 
 ```sh
-terraform destroy -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET
+terraform destroy -var subscription_id=$AZURE_SUBSCRIPTION_ID -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET -var tenant_id=$AZURE_TENANT_ID
 ```
