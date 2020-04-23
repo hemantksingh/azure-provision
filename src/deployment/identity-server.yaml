@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-server-deployment
+  labels:
+    app: identity-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: identity-server
+  template:
+    metadata:
+      labels:
+        app: identity-server
+    spec:
+      containers:
+      - name: identity-server
+        image: beyondtrust.azurecr.io/hemantksingh/identity-server:1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
