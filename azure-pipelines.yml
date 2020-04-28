@@ -11,10 +11,12 @@ stages:
       vmImage: $(vmImageName)
     steps:
       - task: Bash@3
+        displayName: Build docker image
         inputs:
           targetType: 'inline'
           script: docker build -t hemantksingh/azurepaas .
       - task: PublishPipelineArtifact@1
+        displayName: Publish artifact
         inputs:
           artifact: 'deployment'
           patterns: '**/*.tf'
