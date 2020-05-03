@@ -1,6 +1,6 @@
 # Azure Provision
 
-Provision azure resources e.g (AKS, VNets) using terraform and deploy apps with azcli
+Provision azure resources e.g (AKS, VNets) using terraform, azcli and deploy apps to kubernetes using kubectl
 
 ## Run in docker
 ```sh
@@ -43,3 +43,20 @@ After deploying the cluster you can access the [kubernetes dashboard](https://do
 ```sh
 terraform destroy -var subscription_id=$AZURE_SUBSCRIPTION_ID -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET -var tenant_id=$AZURE_TENANT_ID
 ```
+
+## AKS deployment
+
+Deploying kubernetes resources uses the `kubectl` cli
+
+### Deploy nginx ingress controller
+
+In order to route external traffic to your application running within the AKS cluster, we use nginx controller for layer 7 routing.
+
+`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml`
+
+To fulfill ingress ingress to your application, the nginx ingress controller deployment provisions a load balancer in Azure and assigns it a public IP.
+
+### Deploy application
+
+`https://raw.githubusercontent.com/hemantksingh/identity-server/master/identity-server.yaml`
+
