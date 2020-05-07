@@ -1,4 +1,4 @@
-variable "env" {
+variable "target_env" {
   type    = string
   default = "lolcat"
 }
@@ -41,10 +41,10 @@ resource "azurerm_resource_group" "playground" {
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "${var.env}-aks"
+  name                = "${var.target_env}-aks"
   location            = azurerm_resource_group.playground.location
   resource_group_name = azurerm_resource_group.playground.name
-  dns_prefix          = "${var.env}aks"
+  dns_prefix          = "${var.target_env}aks"
 
   linux_profile {
     admin_username = "hkumar"
@@ -55,7 +55,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   default_node_pool {
-    name       = "default"
+    name       = "${var.target_env}nodes"
     node_count = 1
     vm_size    = "Standard_D2_v2"
   }
@@ -66,7 +66,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   tags = {
-    Environment = var.env
+    Environment = var.target_env
   }
 }
 

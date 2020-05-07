@@ -58,5 +58,5 @@ To fulfill ingress ingress to your application, the nginx ingress controller dep
 
 ### Deploy application
 
-`https://raw.githubusercontent.com/hemantksingh/identity-server/master/identity-server.yaml`
+`kubectl apply -f https://raw.githubusercontent.com/hemantksingh/identity-server/master/identity-server.yaml`
 
