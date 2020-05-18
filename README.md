@@ -54,6 +54,8 @@ In order to route external traffic to your application running within the AKS cl
 
 `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml`
 
+Troubleshooting ingress controller: https://github.com/kubernetes/ingress-nginx/blob/master/docs/troubleshooting.md
+
 To fulfill ingress ingress to your application, the nginx ingress controller deployment provisions a load balancer in Azure and assigns it a public IP.
 
 ### Deploy application
