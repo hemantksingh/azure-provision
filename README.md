@@ -37,11 +37,12 @@ terraform apply "aks.tfplan"
 
 After deploying the cluster you can access the [kubernetes dashboard](https://docs.microsoft.com/en-gb/azure/aks/kubernetes-dashboard) for basic management operations. To setup the kubernetes dashboard, complete the following steps:
 
-1. Ensure you have the latest version of `azcli`
-2. If you do not already have `kubectl` installed in your CLI, install it: `az aks install-cli`
-3. Get the credentials for your cluster: `az aks get-credentials -g playground -n cluster-aks`
-4. If you already haven't, enable the kube-dashboard addon for the cluster: `az aks enable-addons --addons kube-dashboard -g playground -n cluster-aks`
-5. Open the kubernetes dashboard: `az aks browse -g playground -n cluster-aks`
+1. Ensure you have the latest version of `azcli` and login using `az login`
+2. Install `kubectl` if you do not already have it: `az aks install-cli`
+3. Get the credentials for your cluster: `az aks get-credentials -g playground -n lolcat-aks`
+4. Verify you can connect to the kubernetes cluster `kubectl cluster-info`
+5. If you already haven't, enable the kube-dashboard addon for the cluster: `az aks enable-addons --addons kube-dashboard -g playground -n lolcat-aks`
+6. Open the kubernetes dashboard: `az aks browse -g playground -n lolcat-aks`
 
 ### AKS deprovision
 
