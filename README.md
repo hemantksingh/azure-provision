@@ -1,12 +1,12 @@
 # Azure Provision
 
-Provision azure resources e.g (AKS, VNets) using terraform and deploy apps with azcli
+Provision azure resources e.g (AKS, VNets) using terraform, azcli and deploy apps to kubernetes using kubectl
 
 ## Run in docker
 ```sh
 
 # Build the docker image
-docker build -t hemantksingh/terraform .
+docker build -t hemantksingh/azurepaas .
 
 # Run terraform provision in a container
 docker run -e AZURE_CLIENT_ID=$AZURE_CLIENT_ID -e AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID -e AZURE_TENANT_ID=$AZURE_TENANT_ID -it hemantksingh/terraform /bin/bash
@@ -37,14 +37,34 @@ terraform apply "aks.tfplan"
 
 After deploying the cluster you can access the [kubernetes dashboard](https://docs.microsoft.com/en-gb/azure/aks/kubernetes-dashboard) for basic management operations. To setup the kubernetes dashboard, complete the following steps:
 
-1. Ensure you have the latest version of `azcli`
-2. If you do not already have `kubectl` installed in your CLI, install it: `az aks install-cli`
-3. Get the credentials for your cluster: `az aks get-credentials -g playground -n cluster-aks`
-4. If you already haven't, enable the kube-dashboard addon for the cluster: `az aks enable-addons --addons kube-dashboard -g playground -n cluster-aks`
-5. Open the kubernetes dashboard: `az aks browse -g playground -n cluster-aks`
+1. Ensure you have the latest version of `azcli` and login using `az login`
+2. Install `kubectl` if you do not already have it: `az aks install-cli`
+3. Get the credentials for your cluster: `az aks get-credentials -g playground -n lolcat-aks`
+4. Verify you can connect to the kubernetes cluster `kubectl cluster-info`
+5. If you already haven't, enable the kube-dashboard addon for the cluster: `az aks enable-addons --addons kube-dashboard -g playground -n lolcat-aks`
+6. Open the kubernetes dashboard: `az aks browse -g playground -n lolcat-aks`
 
 ### AKS deprovision
 
 ```sh
-terraform destroy -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET
+terraform destroy -var subscription_id=$AZURE_SUBSCRIPTION_ID -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET -var tenant_id=$AZURE_TENANT_ID
 ```
+
+## AKS deployment
+
+Deploying kubernetes resources uses the `kubectl` cli
+
+### Deploy nginx ingress controller
+
+In order to route external traffic to your application running within the AKS cluster, we use nginx controller for layer 7 routing.
+
+`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml`
+
+Troubleshooting ingress controller: https://github.com/kubernetes/ingress-nginx/blob/master/docs/troubleshooting.md
+
+To fulfill ingress ingress to your application, the nginx ingress controller deployment provisions a load balancer in Azure and assigns it a public IP.
+
+### Deploy application
+
+`kubectl apply -f https://raw.githubusercontent.com/hemantksingh/identity-server/master/identity-server.yaml`
+
