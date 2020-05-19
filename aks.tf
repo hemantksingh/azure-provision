@@ -20,6 +20,16 @@ variable "client_secret" {
 variable "tenant_id" {
 }
 
+variable "azure_region" {
+  type    = string
+  default = "westeurope"
+}
+
+variable "sql_admin_user" {
+  type    = string
+  default = "sqlUsername"
+}
+
 terraform {
   backend "azurerm" {}
 }
@@ -35,15 +45,16 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "playground" {
+
+resource "azurerm_resource_group" "stack_resource_group" {
   name     = "playground"
-  location = "West Europe"
+  location = var.azure_region
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = "${var.target_env}-aks"
-  location            = azurerm_resource_group.playground.location
-  resource_group_name = azurerm_resource_group.playground.name
+  location            = azurerm_resource_group.stack_resource_group.location
+  resource_group_name = azurerm_resource_group.stack_resource_group.name
   dns_prefix          = "${var.target_env}aks"
 
   linux_profile {
@@ -66,7 +77,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   tags = {
-    Environment = var.target_env
+    environment = var.target_env
   }
 }
 
