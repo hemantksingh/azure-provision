@@ -42,7 +42,11 @@ After deploying the cluster you can access the [kubernetes dashboard](https://do
 3. Get the credentials for your cluster: `az aks get-credentials -g playground -n lolcat-aks`
 4. Verify you can connect to the kubernetes cluster `kubectl cluster-info`
 5. If you already haven't, enable the kube-dashboard addon for the cluster: `az aks enable-addons --addons kube-dashboard -g playground -n lolcat-aks`
-6. Open the kubernetes dashboard: `az aks browse -g playground -n lolcat-aks`
+6. Open the kubernetes dashboard: `az aks browse -g playground -n lolcat-aks`. The dashboard ui can fail to load if you are connecting to the cluster with the same name after destroying and re-provisioning it. In order to resolve this:
+    * Delete your kube config `rm ~/.kube/config`
+    * Worth deleting your kube config cache if you do not require the old cluster connections `rm -rf ~/.kube/cache`
+    * Reconnect to the cluster with step 3
+    * Clear browser cache and open dashboard with step 5 & 6
 
 ### AKS deprovision
 
@@ -60,9 +64,9 @@ In order to route external traffic to your application running within the AKS cl
 
 `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml`
 
-Troubleshooting ingress controller: https://github.com/kubernetes/ingress-nginx/blob/master/docs/troubleshooting.md
+To fulfill ingress to your application, the nginx ingress controller deployment provisions a load balancer in Azure and assigns it a public IP. Before deploying an application to the aks cluster, you have to [wait until an external IP is assigned to the load balancer](https://stackoverflow.com/questions/35179410/how-to-wait-until-kubernetes-assigned-an-external-ip-to-a-loadbalancer-service) in order for your application to be made accessible externally.
 
-To fulfill ingress ingress to your application, the nginx ingress controller deployment provisions a load balancer in Azure and assigns it a public IP.
+Troubleshooting ingress controller: https://github.com/kubernetes/ingress-nginx/blob/master/docs/troubleshooting.md
 
 ### Deploy application
 
