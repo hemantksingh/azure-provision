@@ -79,6 +79,19 @@ resource "azurerm_kubernetes_cluster" "aks" {
   tags = {
     environment = var.target_env
   }
+
+  provisioner "local-exec" {
+    command = "./neel.sh"
+    interpreter = ["/bin/bash", "-e"]
+
+    environment = {
+          AZURE_CLIENT_ID       = "${var.client_id}"
+          AZURE_CLIENT_SECRET   = "${var.client_secret}"
+          AZURE_TENANT_ID       = "${var.tenant_id}"
+          AKS_RESOURCE_GROUP    = "${azurerm_kubernetes_cluster.aks.resource_group_name}"
+          AKS_CLUSTER_NAME      = "${azurerm_kubernetes_cluster.aks.name}"
+    }
+  }
 }
 
 output "client_certificate" {
