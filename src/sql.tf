@@ -6,8 +6,8 @@ resource "random_string" "random_id" {
   special = false
 }
 
-resource "azurerm_storage_account" "diag" {
-  name                      = "${var.target_env}dia${random_string.random_id.result}"
+resource "azurerm_storage_account" "audit" {
+  name                      = "${var.target_env}audit${random_string.random_id.result}"
   resource_group_name       = azurerm_resource_group.stack_resource_group.name
   location                  = var.azure_region
   enable_https_traffic_only = true
@@ -37,8 +37,8 @@ resource "azurerm_sql_server" "stack_sql_server" {
   administrator_login_password = random_password.sql_admin_password.result
 
   extended_auditing_policy {
-    storage_endpoint           = azurerm_storage_account.diag.primary_blob_endpoint
-    storage_account_access_key = azurerm_storage_account.diag.primary_access_key
+    storage_endpoint           = azurerm_storage_account.audit.primary_blob_endpoint
+    storage_account_access_key = azurerm_storage_account.audit.primary_access_key
     retention_in_days          = 90
   }
 
