@@ -25,8 +25,29 @@ aks_get_credentials() {
     az aks get-credentials -g $AKS_RESOURCE_GROUP -n $AKS_CLUSTER_NAME --overwrite-existing
 }
 
+aks_await_lb_assginment() {
+    service=$1; namespace=${2:-default};
+    echo $namespace $service
+    external_ip=""
+    while [ -z $external_ip ]; do
+        echo "Waiting for end point..."
+        external_ip=$(kubectl get svc $service --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}" -n $namespace)
+        ((maxTries++)) && ((maxTries==6)) && break
+        [ -z "$external_ip" ] && sleep 10
+    done
+
+    if [ -z "$external_ip" ]; then
+        echo 'Failed to get load balancer IP, exceeded the max number of tries';
+        return 1
+    else
+        echo 'End point ready:' && echo $external_ip
+    fi
+}
+
 az_login
 aks_get_credentials
 
 echo "Deploying nginx ingress controller..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml
+
+aks_await_lb_assginment 'ingress-nginx-controller' 'ingress-nginx'
