@@ -7,7 +7,7 @@ resource "random_string" "random_id" {
 }
 
 resource "azurerm_storage_account" "audit" {
-  name                      = "${var.target_env}audit${random_string.random_id.result}"
+  name                      = "${var.target_env}aud${random_string.random_id.result}"
   resource_group_name       = azurerm_resource_group.stack_resource_group.name
   location                  = var.azure_region
   enable_https_traffic_only = true
