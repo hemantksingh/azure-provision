@@ -22,11 +22,11 @@ az_login() {
 aks_get_credentials() {
     res_group=$1; cluster_name=$2
     echo "Getting AKS credentials..."
-    az aks get-credentials -g $AKS_RESOURCE_GROUP -n $AKS_CLUSTER_NAME
+    az aks get-credentials -g $AKS_RESOURCE_GROUP -n $AKS_CLUSTER_NAME --overwrite-existing
 }
 
 az_login
 aks_get_credentials
 
-echo "Deploying nginx ingress controller"
+echo "Deploying nginx ingress controller..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml
