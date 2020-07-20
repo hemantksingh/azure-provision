@@ -51,11 +51,17 @@ resource "azurerm_resource_group" "stack_resource_group" {
   location = var.azure_region
 }
 
+locals {
+  cluster_name = "${var.target_env}-aks"
+}
+
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "${var.target_env}-aks"
+  name                = local.cluster_name
+  kubernetes_version  = "1.17.7"
   location            = azurerm_resource_group.stack_resource_group.location
   resource_group_name = azurerm_resource_group.stack_resource_group.name
   dns_prefix          = "${var.target_env}aks"
+  node_resource_group = "mc-${azurerm_resource_group.stack_resource_group.name}-${local.cluster_name}"
 
   linux_profile {
     admin_username = "hkumar"
