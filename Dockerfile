@@ -12,12 +12,15 @@ RUN apk add ansible terraform jq
 # rm -rf /var/cache/apk/* && \
 # mkdir /terraform/modules
 
+# Install kubernetes cli
+RUN az aks install-cli
 RUN terraform --version
 RUN ansible --version
 
 WORKDIR /app
 COPY src .
-# COPY run-uat.sh /terraform/run.sh
-# COPY modules /terraform/modules
-# RUN chmod +x /terraform/run.sh
-# ENTRYPOINT ["/terraform/run.sh"]
+COPY aks.tf .
+
+RUN chmod +x *.sh
+
+ENTRYPOINT ["terraform"]

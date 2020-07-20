@@ -1,5 +1,4 @@
-tfdestroy:
-.PHONY: tfinit tfplan tfapply tfdestroy
+.PHONY: tfinit tfplan tfapply tfdestroy build run deploy
 
 TARGET_ENV?=lolcat
 
@@ -33,3 +32,23 @@ tfdestroy:
 		-var client_id=$(AZURE_CLIENT_ID) \
 		-var client_secret=$(AZURE_CLIENT_SECRET) \
 		-var tenant_id=$(AZURE_TENANT_ID)
+
+IMAGE?=hemantksingh/azurepaas
+TARGET_ENV?=dev
+APP_VERSION?=
+
+build:
+	docker build -t $(IMAGE) .
+
+run: build
+	docker run --rm \
+		-e TARGET_ENV=$(TARGET_ENV) \
+		-v ~/.azure:/root/.azure $(IMAGE)
+
+deploy: build
+	docker run --rm \
+		-e TARGET_ENV=$(TARGET_ENV) \
+		-e AZURE_CLIENT_ID=$(AZURE_CLIENT_ID) \
+		-e AZURE_CLIENT_SECRET=$(AZURE_CLIENT_SECRET) \
+		-e AZURE_TENANT_ID=$(AZURE_TENANT_ID) \
+		$(IMAGE) init
