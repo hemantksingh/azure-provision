@@ -66,6 +66,8 @@ In order to route external traffic to your application running within the AKS cl
 
 To fulfill ingress to your application, the nginx ingress controller deployment provisions a load balancer in Azure and assigns it a public IP. Before deploying an application to the aks cluster, you have to [wait until an external IP is assigned to the load balancer](https://stackoverflow.com/questions/35179410/how-to-wait-until-kubernetes-assigned-an-external-ip-to-a-loadbalancer-service) in order for your application to be made accessible externally.
 
+Nginx controller can be configured to set up [client certificate authentication](https://kubernetes.github.io/ingress-nginx/examples/auth/client-certs/) with your own certificates by using the [auth-tls annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#client-certificate-authentication)
+
 Troubleshooting ingress controller: https://github.com/kubernetes/ingress-nginx/blob/master/docs/troubleshooting.md
 
 ### Deploy application
