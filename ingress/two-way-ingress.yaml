@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: two-way-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # ingress.kubernetes.io/rewrite-target: /
+    # nginx.ingress.kubernetes.io/add-base-url : "true"
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
+    nginx.ingress.kubernetes.io/auth-tls-secret: default/aks-ingress-certs
+    nginx.ingress.kubernetes.io/rewrite-target: /$2 #target URI where the traffic must be redirected
+spec:
+  tls:
+  - hosts:
+    - lolcat.azure.com
+    secretName: aks-ingress-certs
+  rules:
+  - host: lolcat.azure.com
+    http:
+      paths:
+      - path: /identity(/|$)(.*) # the service doesn't know about this path, therefore 'identity' is rewritten using rewrite annotation https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/rewrite/README.md
+        backend:
+          serviceName: identity-server
+          servicePort: 80

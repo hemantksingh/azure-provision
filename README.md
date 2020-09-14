@@ -54,23 +54,33 @@ After deploying the cluster you can access the [kubernetes dashboard](https://do
 terraform destroy -var subscription_id=$AZURE_SUBSCRIPTION_ID -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET -var tenant_id=$AZURE_TENANT_ID
 ```
 
-## AKS deployment
+### Kubernetes configuration
 
-Deploying kubernetes resources uses the `kubectl` cli
+Deploying kubernetes resources uses `kubectl` cli. You can [deploy an ingress controller](./docs/ingress-controller.md) to route external traffic to your applications.
 
-### Deploy nginx ingress controller
-
-In order to route external traffic to your application running within the AKS cluster, we use nginx controller for layer 7 routing.
-
-`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-0.32.0/deploy/static/provider/cloud/deploy.yaml`
-
-To fulfill ingress to your application, the nginx ingress controller deployment provisions a load balancer in Azure and assigns it a public IP. Before deploying an application to the aks cluster, you have to [wait until an external IP is assigned to the load balancer](https://stackoverflow.com/questions/35179410/how-to-wait-until-kubernetes-assigned-an-external-ip-to-a-loadbalancer-service) in order for your application to be made accessible externally.
-
-Nginx controller can be configured to set up [client certificate authentication](https://kubernetes.github.io/ingress-nginx/examples/auth/client-certs/) with your own certificates by using the [auth-tls annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#client-certificate-authentication)
-
-Troubleshooting ingress controller: https://github.com/kubernetes/ingress-nginx/blob/master/docs/troubleshooting.md
 
 ### Deploy application
 
+After deploying an ingress controller, you can deploy applications to the k8 cluster with ingress rules to define routes into your application
+
 `kubectl apply -f https://raw.githubusercontent.com/hemantksingh/identity-server/master/identity-server.yaml`
 
+```sh
+# Generate the CA Key and Certificate
+$ openssl req -x509 -sha256 -newkey rsa:4096 -keyout ca.key -out ca.crt -days 356 -nodes -subj '/CN=Lolcat Cert Authority'
+# Generate the Server Key, and Certificate and Sign with the CA Certificate
+$ openssl req -new -newkey rsa:4096 -keyout server.key -out server.csr -nodes -subj  '/CN=lolcat.azure.com/O=aks-ingress'
+$ openssl x509 -req -sha256 -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
+```
+
+Create kubernetes secret for TLS certificate
+
+`kubectl create secret generic aks-ingress-int --from-file=tls.crt=server.crt --from-file=tls.key=server.key --from-file=ca.crt=ca.crt`
+
+Deploy ingress rule
+
+`kubectl apply -f ingress/one-way-ingress.yaml`
+
+Test the ingress configuration
+
+`curl -v -k --resolve lolcat.azure.com:443:EXTERNAL_IP https://lolcat.azure.com`
