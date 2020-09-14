@@ -1,39 +1,39 @@
-# Azure Provision
-
 Provision azure resources e.g (AKS, VNets) using terraform, azcli and deploy apps to kubernetes using kubectl
 
-## Run in docker
-```sh
+## Provision resources
 
+```sh
+# Initialise terraform backend using access key https://www.terraform.io/docs/backends/types/azurerm.html
+
+BACKEND_STORAGE_ACCOUNT=xxxx
+BACKEND_CONTAINER=xxxx
+ARM_ACCESS_KEY=xxxx
+make tfinit
+
+# Make terraform plan
+AZURE_SUBSCRIPTION_ID=xxxx
+AZURE_CLIENT_ID=xxxx
+AZURE_CLIENT_SECRET=xxxx
+AZURE_TENANT_ID=xxxx
+make tfplan
+
+# Provision resources
+make tfapply
+```
+### Run provision resources in a container 
+
+```sh
 # Build the docker image
 docker build -t hemantksingh/azurepaas .
 
-# Run terraform provision in a container
+# Run terraform provision
 docker run -e AZURE_CLIENT_ID=$AZURE_CLIENT_ID -e AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID -e AZURE_TENANT_ID=$AZURE_TENANT_ID -it hemantksingh/terraform /bin/bash
-
-terraform plan \
-    -var subscription_id=$AZURE_SUBSCRIPTION_ID \
-    -var client_id=$AZURE_CLIENT_ID \
-    -var client_secret=$AZURE_CLIENT_SECRET \
-    -var tenant_id=$AZURE_TENANT_ID -out aks.tfplan
-
-terraform apply "aks.tfplan"
 ```
+## Deprovision resources
 
-## AKS setup
+`make tfdestroy`
 
-You can deploy the aks cluster by running the following:
-
-```sh
-# Setup the terraform backend using access key https://www.terraform.io/docs/backends/types/azurerm.html
-terraform init -backend-config="storage_account_name=hkterraformstore" -backend-config="container_name=cluster-state" -backend-config="key=lolcat.tfstate" -backend-config="access_key=$BACKEND_ACCESS_KEY"
-
-terraform plan -var subscription_id=$AZURE_SUBSCRIPTION_ID -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET -var tenant_id=$AZURE_TENANT_ID -out aks.tfplan
-
-terraform apply "aks.tfplan"
-```
-
-### AKS management
+## AKS management
 
 After deploying the cluster you can access the [kubernetes dashboard](https://docs.microsoft.com/en-gb/azure/aks/kubernetes-dashboard) for basic management operations. To setup the kubernetes dashboard, complete the following steps:
 
@@ -48,13 +48,8 @@ After deploying the cluster you can access the [kubernetes dashboard](https://do
     * Reconnect to the cluster with step 3
     * Clear browser cache and open dashboard with step 5 & 6
 
-### AKS deprovision
 
-```sh
-terraform destroy -var subscription_id=$AZURE_SUBSCRIPTION_ID -var client_id=$AZURE_CLIENT_ID -var client_secret=$AZURE_CLIENT_SECRET -var tenant_id=$AZURE_TENANT_ID
-```
-
-### Kubernetes configuration
+## Kubernetes configuration
 
 Deploying kubernetes resources uses `kubectl` cli. You can [deploy an ingress controller](./docs/ingress-controller.md) to route external traffic to your applications.
 
