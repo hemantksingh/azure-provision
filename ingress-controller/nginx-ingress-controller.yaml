@@ -1,0 +1,16 @@
+apiVersion: k8s.nginx.org/v1alpha1
+kind: NginxIngressController
+metadata:
+  name: nginx-ingress-controller-internal
+  namespace: default
+spec:
+  type: deployment
+  nginxPlus: False
+  image:
+    repository: registry.hub.docker.com/nginx/nginx-ingress
+    tag: edge-ubi
+    pullPolicy: Always
+  replicas: 1
+  serviceType: LoadBalancer
+  enableCRDs: true
+  ingressClass: nginx-internal
