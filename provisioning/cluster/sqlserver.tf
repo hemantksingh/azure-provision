@@ -60,7 +60,7 @@ resource "azurerm_sql_firewall_rule" "sql_firewall" {
 }
 
 resource "azurerm_mssql_elasticpool" "sql_server_pool" {
-  name                = "${var.target_env}-sql-server-epool"
+  name                = "${var.target_env}-sqlserver-epool"
   resource_group_name = azurerm_resource_group.stack_resource_group.name
   location            = var.azure_region
 

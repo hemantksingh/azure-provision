@@ -8,30 +8,46 @@ BACKEND_CONTAINER?=cluster-state
 BACKEND_CONFIG_KEY=$(TARGET_ENV).tfstate
 
 
+CLUSTER_DIR=provisioning/cluster
 tfinit:
-	terraform init \
+	cd $(CLUSTER_DIR) && terraform init \
 		-backend-config="storage_account_name=$(BACKEND_STORAGE_ACCOUNT)" \
 		-backend-config="container_name=$(BACKEND_CONTAINER)" \
 		-backend-config="key=$(BACKEND_CONFIG_KEY)"
 
 tfplan:
-	terraform plan \
+	cd $(CLUSTER_DIR) && terraform plan \
 		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
 		-var client_id=$(AZURE_CLIENT_ID) \
 		-var client_secret=$(AZURE_CLIENT_SECRET) \
 		-var tenant_id=$(AZURE_TENANT_ID) \
-		-out $(TARGET_ENV).tfplan
+		-out $(TARGET_ENV)_cluster.tfplan
 
 tfapply:
-	terraform apply "$(TARGET_ENV).tfplan"
+	cd $(CLUSTER_DIR) && terraform apply "$(TARGET_ENV)_cluster.tfplan"
 
 
 tfdestroy:
-	terraform destroy  \
+	cd $(CLUSTER_DIR) && terraform destroy  \
 		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
 		-var client_id=$(AZURE_CLIENT_ID) \
 		-var client_secret=$(AZURE_CLIENT_SECRET) \
 		-var tenant_id=$(AZURE_TENANT_ID)
+
+TENANT_DIR=provisioning/tenant
+deploy-tenant:
+	pwsh $(TENANT_DIR)/tfconfig.ps1
+	cd $(TENANT_DIR) && terraform init \
+		-backend-config="storage_account_name=$(BACKEND_STORAGE_ACCOUNT)" \
+		-backend-config="container_name=$(BACKEND_CONTAINER)" \
+		-backend-config="key=$(TARGET_ENV)-$(AZURE_TENANT_ID).tfstate"
+	cd $(TENANT_DIR) && terraform plan \
+		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
+		-var client_id=$(AZURE_CLIENT_ID) \
+		-var client_secret=$(AZURE_CLIENT_SECRET) \
+		-var tenant_id=$(AZURE_TENANT_ID) \
+		-out $(TARGET_ENV)_tenant.tfplan
+	
 
 IMAGE?=hemantksingh/azurepaas
 TARGET_ENV?=dev

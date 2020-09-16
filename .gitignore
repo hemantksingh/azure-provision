@@ -2,3 +2,4 @@
 *.tfstate
 *.backup
 *.tfplan
+/**/*.auto.tfvars.json
