@@ -14,12 +14,25 @@ variable "target_env" {
   type    = string
 }
 
+variable "azure_region" {
+  type    = string
+}
+
 variable "deployed_by" {
   type  = string
 }
 
 variable "stack_resource_group" {
   type  = string
+}
+
+variable "app_tenant" {
+  type = object({
+    id            = string
+    name          = string
+    sql_user      = string
+    sql_password  = string
+  })
 }
 
 variable "databases" {

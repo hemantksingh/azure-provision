@@ -23,7 +23,6 @@ tfplan:
 		-out $(TARGET_ENV)_cluster.tfplan
 
 tfapply:
-	pwsh $(CLUSTER_DIR)/tfconfig.ps1
 	cd $(CLUSTER_DIR) && terraform apply "$(TARGET_ENV)_cluster.tfplan"
 
 
@@ -48,6 +47,7 @@ deploy-tenant:
 		-var client_secret=$(AZURE_CLIENT_SECRET) \
 		-var tenant_id=$(AZURE_TENANT_ID) \
 		-out $(TARGET_ENV)_tenant.tfplan
+	cd $(TENANT_DIR) && terraform apply "$(TARGET_ENV)_tenant.tfplan"
 	
 
 IMAGE?=hemantksingh/azurepaas
