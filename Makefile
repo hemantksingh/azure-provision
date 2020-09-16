@@ -5,17 +5,16 @@ TARGET_ENV?=lolcat
 # Terraform azure backend config, requires ARM_ACCESS_KEY or SAS token
 BACKEND_STORAGE_ACCOUNT?=hkterraformstore
 BACKEND_CONTAINER?=cluster-state
-BACKEND_CONFIG_KEY=$(TARGET_ENV).tfstate
-
 
 CLUSTER_DIR=provisioning/cluster
 tfinit:
 	cd $(CLUSTER_DIR) && terraform init \
 		-backend-config="storage_account_name=$(BACKEND_STORAGE_ACCOUNT)" \
 		-backend-config="container_name=$(BACKEND_CONTAINER)" \
-		-backend-config="key=$(BACKEND_CONFIG_KEY)"
+		-backend-config="key=$(TARGET_ENV).tfstate"
 
 tfplan:
+	pwsh $(CLUSTER_DIR)/tfconfig.ps1
 	cd $(CLUSTER_DIR) && terraform plan \
 		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
 		-var client_id=$(AZURE_CLIENT_ID) \
@@ -24,10 +23,12 @@ tfplan:
 		-out $(TARGET_ENV)_cluster.tfplan
 
 tfapply:
+	pwsh $(CLUSTER_DIR)/tfconfig.ps1
 	cd $(CLUSTER_DIR) && terraform apply "$(TARGET_ENV)_cluster.tfplan"
 
 
 tfdestroy:
+	pwsh $(CLUSTER_DIR)/tfconfig.ps1
 	cd $(CLUSTER_DIR) && terraform destroy  \
 		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
 		-var client_id=$(AZURE_CLIENT_ID) \

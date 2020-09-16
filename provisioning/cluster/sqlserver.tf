@@ -15,19 +15,6 @@ resource "azurerm_storage_account" "audit" {
   account_replication_type  = "LRS"
 }
 
-resource "random_password" "sql_admin_password" {
-  length           = 20
-  lower            = true
-  upper            = true
-  number           = true
-  special          = true
-  min_lower        = 1
-  min_upper        = 1
-  min_numeric      = 1
-  min_special      = 1
-  override_special = "!*+._~"
-}
-
 resource "azurerm_sql_server" "stack_sql_server" {
   name                         = "${var.target_env}-sqlserver"
   resource_group_name          = azurerm_resource_group.stack_resource_group.name
