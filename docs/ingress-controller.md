@@ -1,4 +1,5 @@
 # Ingress controller
+
 In order to route external traffic to your application running within the AKS cluster, we use nginx controller for layer 7 routing. Nginx controller can be configured to set up [client certificate authentication](https://kubernetes.github.io/ingress-nginx/examples/auth/client-certs/) with your own certificates by using the [auth-tls annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#client-certificate-authentication)
 
 ## Deploy nginx ingress controller
@@ -18,8 +19,10 @@ Deploy the latest ingress operator by following the instructions [here](https://
 ```sh
 export OPERATOR_GITHUB_URL=https://raw.githubusercontent.com/nginxinc/nginx-ingress-operator/v0.0.6
 
+# Add the CRD
 kubectl apply -f ${OPERATOR_GITHUB_URL}/deploy/crds/k8s.nginx.org_nginxingresscontrollers_crd.yaml
 
+# Deploy the operator
 kubectl apply -f ${OPERATOR_GITHUB_URL}/deploy/service_account.yaml
 
 kubectl apply -f ${OPERATOR_GITHUB_URL}/deploy/role.yaml
