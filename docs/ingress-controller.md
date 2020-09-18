@@ -1,8 +1,22 @@
 # Ingress controller
 
-In order to route external traffic to your application running within the AKS cluster, we use nginx controller for layer 7 routing. Nginx controller can be configured to set up [client certificate authentication](https://kubernetes.github.io/ingress-nginx/examples/auth/client-certs/) with your own certificates by using the [auth-tls annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#client-certificate-authentication)
+In order to route external traffic to your application running within the AKS cluster, we use an ingress controller for layer 7 routing. 
+
+
+## Deploy haproxy ingress controller
+
+Deploy haproxy controller using kubernetes manifests as specified [here](https://github.com/jcmoraisjr/haproxy-ingress/tree/master/examples/deployment)
+
+```sh
+
+kubectl 
+# Test the ingress
+curl -v -k https://lolcat.azure.com --resolve lolcat.azure.com:443:51.137.56.186
+```
 
 ## Deploy nginx ingress controller
+
+Nginx controller can be configured to set up [client certificate authentication](https://kubernetes.github.io/ingress-nginx/examples/auth/client-certs/) with your own certificates by using the [auth-tls annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#client-certificate-authentication)
 
 There are [multiple ways](https://docs.nginx.com/nginx-ingress-controller/overview/) of deploying nginx ingress controllers, but we look at 2 below:
 
