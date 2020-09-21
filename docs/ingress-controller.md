@@ -1,17 +1,19 @@
 # Ingress controller
 
-In order to route external traffic to your application running within the AKS cluster, we use an ingress controller for layer 7 routing. 
-
+The kubernetes Service API provides ingress routes to your applications, but it uses limited layer 4 routing. In order to route external traffic to your application running within the AKS cluster and expose multiple services under the same IP address we use an ingress controller for layer 7 routing.
 
 ## Deploy haproxy ingress controller
 
 Deploy haproxy controller using kubernetes manifests as specified [here](https://github.com/jcmoraisjr/haproxy-ingress/tree/master/examples/deployment)
 
 ```sh
+# Deploy ingress controller
+kubectl apply -f ingress-controller/haproxy-ingress-controller.yaml
 
-kubectl 
 # Test the ingress
-curl -v -k https://lolcat.azure.com --resolve lolcat.azure.com:443:51.137.56.186
+LOADBALANCERIP=$(kubectl get service haproxy-ingress -o jsonpath='{ .status.loadBalancer.ingress[].ip }' -n ingress-haproxy)
+HOSTNAME=lolcat.azure.com
+curl -v -k https://$HOSTNAME --resolve $HOSTNAME:443:$LOADBALANCERIP
 ```
 
 ## Deploy nginx ingress controller
