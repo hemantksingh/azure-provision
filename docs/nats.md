@@ -1,6 +1,6 @@
 # NATS
 
-NATS authorization can be [integrated with Kubernetes ServiceAccounts](https://github.com/nats-io/nats-operator/blob/master/docs/usage/svc-account-bound-tokens-integration.md) by using the kubernetes TokenRequestAPI that allows creating a new token bound to a `ServiceAccount` only for the intended audience.
+NATS authorization is [integrated with Kubernetes ServiceAccounts](https://github.com/nats-io/nats-operator/blob/master/docs/usage/svc-account-bound-tokens-integration.md) by using the kubernetes TokenRequestAPI that allows creating a new token bound to a `ServiceAccount` usable only by NATS clients of a NATS cluster stored in a secret.
 
 ## Deploy NATS using operator
 

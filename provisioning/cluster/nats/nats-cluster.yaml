@@ -5,3 +5,26 @@ metadata:
 spec:
   size: 3
   version: "2.1.8"
+  pod:
+    enableConfigReload: true
+  auth:
+    enableServiceAccounts: true # By default the account mapping is disabled
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nats-user
+
+---
+apiVersion: nats.io/v1alpha2
+kind: NatsServiceRole           # ← New CRD for mapping to ServiceAccount
+metadata:
+  name: nats-user               # ← Has to be the same as the ServiceAccount being mapped
+  namespace: default
+  labels:
+    nats_cluster: nats-cluster  # Defines to which 
+spec:
+  permissions:
+    publish: ["foo.*", "foo.bar.quux"]
+    subscribe: ["foo.bar", "greetings", "hello.world"]
