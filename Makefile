@@ -1,4 +1,4 @@
-.PHONY: tfinit tfplan tfapply tfdestroy build run deploy
+.PHONY: tfinit tfplan tfapply tfdestroy deploy-tenant delete-tenant build run deploy
 
 TARGET_ENV?=lolcat
 
@@ -48,8 +48,15 @@ deploy-tenant:
 		-var tenant_id=$(AZURE_TENANT_ID) \
 		-out $(TARGET_ENV)_tenant.tfplan
 	cd $(TENANT_DIR) && terraform apply "$(TARGET_ENV)_tenant.tfplan"
-	
 
+delete-tenant:
+	echo tenant
+	cd $(TENANT_DIR) && terraform destroy \
+		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
+		-var client_id=$(AZURE_CLIENT_ID) \
+		-var client_secret=$(AZURE_CLIENT_SECRET) \
+		-var tenant_id=$(AZURE_TENANT_ID)
+	
 IMAGE?=hemantksingh/azurepaas
 TARGET_ENV?=dev
 APP_VERSION?=
