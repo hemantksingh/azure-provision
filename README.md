@@ -1,26 +1,28 @@
-Provision azure resources e.g (AKS, VNets) using terraform, azcli and deploy apps to kubernetes using kubectl
+Provision AKS (Azure Kubernetes Service) cluster using `terraform`, `az` cli and deploy apps to kubernetes using `kubectl`
 
 ## Provision resources
 
 ```sh
 # Initialise terraform backend using access key https://www.terraform.io/docs/backends/types/azurerm.html
-
 BACKEND_STORAGE_ACCOUNT=xxxx
 BACKEND_CONTAINER=xxxx
 ARM_ACCESS_KEY=xxxx
-make tfinit
 
 # Make terraform plan
 AZURE_SUBSCRIPTION_ID=xxxx
 AZURE_CLIENT_ID=xxxx
 AZURE_CLIENT_SECRET=xxxx
 AZURE_TENANT_ID=xxxx
-make tfplan
+make plan-cluster
 
 # Provision resources
-make tfapply
+make deploy-cluster
+
+# Deprovision resources
+make delete-cluster
 ```
-### Run provision resources in a container 
+
+### Run provision resources in a container
 
 ```sh
 # Build the docker image
@@ -29,9 +31,6 @@ docker build -t hemantksingh/azurepaas .
 # Run terraform provision
 docker run -e AZURE_CLIENT_ID=$AZURE_CLIENT_ID -e AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET -e AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID -e AZURE_TENANT_ID=$AZURE_TENANT_ID -it hemantksingh/terraform /bin/bash
 ```
-## Deprovision resources
-
-`make tfdestroy`
 
 ## AKS management
 
@@ -48,11 +47,9 @@ After deploying the cluster you can access the [kubernetes dashboard](https://do
     * Reconnect to the cluster with step 3
     * Clear browser cache and open dashboard with step 5 & 6
 
-
 ## Kubernetes configuration
 
 Deploying kubernetes resources uses `kubectl` cli. You can [deploy an ingress controller](./docs/ingress-controller.md) to route external traffic to your applications.
-
 
 ### Deploy application
 
