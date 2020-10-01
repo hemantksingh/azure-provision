@@ -42,7 +42,7 @@ terraform {
 }
 
 provider "azurerm" {
-  version = "=2.4.0"
+  version = "=2.17.0"
 
   subscription_id = var.subscription_id
   client_id       = var.client_id
@@ -164,9 +164,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     availability_zones = [1, 2, 3] # By defining node pools in a cluster to span multiple zones, nodes in a given node pool are able to continue operating even if a single zone goes down https://docs.microsoft.com/en-us/azure/aks/availability-zones
   }
 
-  service_principal {
-    client_id     = var.client_id
-    client_secret = var.client_secret
+  identity {
+    type = "SystemAssigned"
   }
 
   tags = {
