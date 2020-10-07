@@ -18,7 +18,7 @@ curl -v -k https://$HOSTNAME --resolve $HOSTNAME:443:$LOADBALANCERIP
 
 ## Deploy nginx ingress controller
 
-Nginx controller can be configured to set up [client certificate authentication](https://kubernetes.github.io/ingress-nginx/examples/auth/client-certs/) with your own certificates by using the [auth-tls annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#client-certificate-authentication)
+Nginx controller can be configured to set up [client certificate authentication](https://kubernetes.github.io/ingress-nginx/examples/auth/client-certs/) by using the [auth-tls annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#client-certificate-authentication). TLS client certificates are transmitted by the client as part of the TLS handshake and the ingress controller checks the validity of the certificate during the handshake as well. If the certificate is accepted, nginx can be [configured to add headers for transmitting the certificate](https://stackoverflow.com/questions/31305376/using-client-certificate-in-curl-command) or information contained on the certificate to the application. This information will only be sent if the certificate was successfully validated, so the application can then parse the certificate and rely on the information it bears.
 
 There are [multiple ways](https://docs.nginx.com/nginx-ingress-controller/overview/) of deploying nginx ingress controllers, but we look at 2 below:
 
