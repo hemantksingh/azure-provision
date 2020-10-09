@@ -17,7 +17,7 @@ spec:
   - host: internal.azure.com
     http:
       paths:
-      - path: /identity(/|$)(.*) # the service doesn't know about this path, therefore 'identity' is rewritten using rewrite annotation https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/rewrite/README.md
+      - path: /identity(/|$)(.*) # the service doesn't know about this path, therefore 'identity' is rewritten using rewrite annotation https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/rewrite/README.md, this can break css & js links https://www.reddit.com/r/kubernetes/comments/gychg1/nginx_ingress_rewrite_breaking_css_and_js_links/
         backend:
           serviceName: identity-server
           servicePort: 80
