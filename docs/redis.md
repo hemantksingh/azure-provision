@@ -2,6 +2,10 @@
 
 Running [Redis in production on kubernetes](https://medium.com/swlh/production-checklist-for-redis-on-kubernetes-60173d5a5325) requires you to make the correct hardware choices as well as choosing an appropriate deployment method.
 
+## Deploy Redis with manifests
+
+https://github.com/rustudorcalin/deploying-redis-cluster
+
 ## Deploy Redis using operator
 
 This deployment method runs Redis in a master-slave cluster with [Redis Sentinel](https://redis.io/topics/sentinel).

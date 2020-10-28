@@ -57,22 +57,64 @@ After deploying an ingress controller, you can deploy applications to the k8 clu
 
 `kubectl apply -f https://raw.githubusercontent.com/hemantksingh/identity-server/master/identity-server.yaml`
 
+
+### Generate certificates
+
 ```sh
+
 # Generate the CA Key and Certificate
-$ openssl req -x509 -sha256 -newkey rsa:4096 -keyout ca.key -out ca.crt -days 356 -nodes -subj '/CN=Lolcat Cert Authority'
-# Generate the Server Key, and Certificate and Sign with the CA Certificate
-$ openssl req -new -newkey rsa:4096 -keyout server.key -out server.csr -nodes -subj  '/CN=lolcat.azure.com/O=aks-ingress'
-$ openssl x509 -req -sha256 -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
+$ openssl req -x509 -sha256 -newkey rsa:4096 -days 356 -nodes \
+	-keyout ca.key \
+	-out ca.crt \
+	-subj '/CN=Internal Cert Authority/O=CA Org/C=GB'
+
+# Generate the Server Key and Server Certificate and Sign with the CA Certificate
+$ openssl req -new -nodes -newkey rsa:4096 \
+	-out server.csr \
+	-keyout server.key \
+	-subj '/CN={EXTERNAL_IP}.nip.io/O=aks-ingress/C=GB'
+$ openssl x509 -req -sha256 -days 365 \
+	-in server.csr \
+	-CA ca.crt -CAkey ca.key \
+	-set_serial 01 \
+	-out server.crt
+
+# Generate the Client Key and client Certificate and Sign with the CA Certificate
+$ openssl req -new -nodes -newkey rsa:4096 \
+	-out client.csr \
+	-keyout client.key \
+	-subj '/CN=local-client/O=aks-ingress-client/C=GB'
+$ openssl x509 -req -sha256 -days 365 \
+	-in client.csr \
+	-CA ca.crt -CAkey ca.key \
+	-set_serial 02 \
+	-out client.crt
 ```
 
-Create kubernetes secret for TLS certificate
+### Create kubernetes secrets
 
-`kubectl create secret generic aks-ingress-int --from-file=tls.crt=server.crt --from-file=tls.key=server.key --from-file=ca.crt=ca.crt`
+```sh
+# Using same CA for both client and server cert validation
+kubectl create secret generic aks-ingress-int --from-file=tls.crt=server.crt --from-file=tls.key=server.key --from-file=ca.crt=ca.crt
 
-Deploy ingress rule
+
+# Using different CAs for client cert validation and server TLS
+
+# Add a secret for cert validation (e.g. issued by an internal CA)
+kubectl create secret generic local-ca --from-file=ca.crt=local-ca.crt
+
+# Add a secret for server TLS (e.g. issued by a global CA)
+kubectl create secret tls trusted-tls --key trusted-server.key --cert trusted-server.crt
+```
+
+### Configure ingress rule
 
 `kubectl apply -f ingress/one-way-ingress.yaml`
 
 Test the ingress configuration
 
-`curl -v -k --resolve lolcat.azure.com:443:EXTERNAL_IP https://lolcat.azure.com`
+`curl -v -k https://{EXTERNAL_IP}.nip.io`
+
+Test the ingress configuration for cert based authentication
+
+`curl -v -k https://{EXTERNAL_IP}.nip.io --cert local-client.crt --key local-client.key`
