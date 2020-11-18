@@ -1,35 +1,71 @@
-.PHONY: plan-cluster deploy-cluster delete-cluster deploy-tenant delete-tenant build run deploy
+.PHONY: cluster destroy-cluster sqlserver destroy-sqlserver deploy-tenant delete-tenant build run deploy
 
-TARGET_ENV?=lolcat
+TARGET_ENV?=brahma
+STACK_NAME=$(TARGET_ENV)
+AZURE_REGION?=westeurope
+
+TERRAFORM_DIR=provisioning
+
+define winconfig
+	powershell $(TERRAFORM_DIR)/$(1)/tfconfig.ps1 \
+			-stackName $(STACK_NAME) \
+			-azureRegion $(AZURE_REGION)
+endef
+
+define linuxconfig
+	pwsh $(TERRAFORM_DIR)/$(1)/tfconfig.ps1 \
+		-stackName $(STACK_NAME) \
+		-azureRegion $(AZURE_REGION)
+endef
 
 # Terraform azure backend config, requires ARM_ACCESS_KEY or SAS token
 BACKEND_STORAGE_ACCOUNT?=hkterraformstore
-BACKEND_CONTAINER?=cluster-state
+BACKEND_CONTAINER?=experiment
 
-CLUSTER_DIR=provisioning/cluster
-plan-cluster:
-	cd $(CLUSTER_DIR) && terraform init \
+define tfinit
+	cd $(TERRAFORM_DIR)/$(1) && terraform init \
 		-backend-config="storage_account_name=$(BACKEND_STORAGE_ACCOUNT)" \
 		-backend-config="container_name=$(BACKEND_CONTAINER)" \
-		-backend-config="key=$(TARGET_ENV).tfstate"
-	pwsh $(CLUSTER_DIR)/tfconfig.ps1
-	cd $(CLUSTER_DIR) && terraform plan \
-		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
-		-var client_id=$(AZURE_CLIENT_ID) \
-		-var client_secret=$(AZURE_CLIENT_SECRET) \
-		-var tenant_id=$(AZURE_TENANT_ID) \
-		-out $(TARGET_ENV)_cluster.tfplan
+		-backend-config="key=$(2)"
+endef
 
-deploy-cluster:
-	cd $(CLUSTER_DIR) && terraform apply "$(TARGET_ENV)_cluster.tfplan"
+CLUSTER_KEY=$(AZURE_REGION)-$(STACK_NAME)
+cluster:
+ifeq ($(OS), Windows_NT)
+	$(call winconfig,$@)
+else
+	$(call linuxconfig,$@)
+endif
+	$(call tfinit,$@,$(CLUSTER_KEY).tfstate) && \
+	terraform plan -out $(CLUSTER_KEY).tfplan
+ifeq ($(APPLY), true)
+	cd $(TERRAFORM_DIR)/$@ && \
+	terraform apply $(CLUSTER_KEY).tfplan
+else
+	@echo Skipping apply ...
+endif
 
-delete-cluster:
-	pwsh $(CLUSTER_DIR)/tfconfig.ps1
-	cd $(CLUSTER_DIR) && terraform destroy  \
-		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
-		-var client_id=$(AZURE_CLIENT_ID) \
-		-var client_secret=$(AZURE_CLIENT_SECRET) \
-		-var tenant_id=$(AZURE_TENANT_ID)
+destroy-cluster:
+	cd $(TERRAFORM_DIR)/cluster && terraform destroy
+
+SQLSERVER_KEY=$(AZURE_REGION)-$(STACK_NAME)-sql
+sqlserver:
+	$(call tfinit,$@,$(SQLSERVER_KEY).tfstate) && \
+	terraform plan \
+		-var stack_name=$(STACK_NAME) \
+		-var azure_region=$(AZURE_REGION) \
+		-out $(SQLSERVER_KEY).tfplan
+ifeq ($(APPLY), true)
+	cd $(TERRAFORM_DIR)/$@ && \
+	terraform apply $(SQLSERVER_KEY).tfplan
+else
+	@echo Skipping apply ...
+endif
+
+destroy-sqlserver:
+	cd $(TERRAFORM_DIR)/sqlserver && terraform destroy \
+		-var stack_name=$(STACK_NAME) \
+		-var azure_region=$(AZURE_REGION)
 
 TENANT_DIR=provisioning/tenant
 deploy-tenant:

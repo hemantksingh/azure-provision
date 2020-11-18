@@ -1,14 +1,12 @@
 param (
-    [string] $targetEnv='lolcat',
-    [string] $resourceGroupName='playground',
-    [string] $azureRegion='westeurope',
+    [Parameter(mandatory = $true)][string] $stackName,
+    [Parameter(mandatory = $true)][string] $azureRegion,
     [string] $deployedBy='hk'
 )
 $ErrorActionPreference = "Stop"
 
 $config = @{
-    target_env           = $targetEnv
-    stack_resource_group = $resourceGroupName
+    stack_name           = $stackName
     azure_region         = $azureRegion
     deployed_by          = $deployedBy
 }
