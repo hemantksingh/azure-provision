@@ -1,11 +1,10 @@
 param (
-    [string] $targetEnv='lolcat',
-    [string] $tenantName='lol',
-    [string] $azureRegion='westeurope',
-    [string] $resourceGroupName='playground',
+    [Parameter(mandatory = $true)][string] $stackName,
+    [Parameter(mandatory = $true)][string] $azureRegion,
     [string] $deployedBy='hk'
-    )
-    $ErrorActionPreference = "Stop"
+)
+
+$ErrorActionPreference = "Stop"
     
 $currentDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 Import-Module $currentDir/password.psm1 -Force;
@@ -31,13 +30,12 @@ function Generate-UniqueTenant (
 }
 
 
-$appTenant = Generate-UniqueTenant $tenantName
+$appTenant = Generate-UniqueTenant 'lol'
 
 $config = @{
-    deployed_by          = $deployedBy
-    target_env           = $targetEnv
+    stack_name           = $stackName
     azure_region         = $azureRegion
-    stack_resource_group = $resourceGroupName
+    deployed_by          = $deployedBy
     app_tenant = @{
         id              = $appTenant.id
         name            = $appTenant.name
@@ -46,8 +44,7 @@ $config = @{
     }
     databases  = @(
         @{
-            resource_group_name = $resourceGroupName
-            server_name         =  "$targetEnv-sqlserver"
+            server_name         =  "$stackName-sqlserver"
             database_name       =  "Management"
             policy_weeks        =  1
             display_name        = "Management Database"

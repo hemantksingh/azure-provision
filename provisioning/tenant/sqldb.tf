@@ -1,16 +1,12 @@
-variable "subscription_id" {
+terraform {
+  backend "azurerm" {}
 }
 
-variable "client_id" {
+provider "azurerm" {
+  features {}
 }
 
-variable "client_secret" {
-}
-
-variable "tenant_id" {
-}
-
-variable "target_env" {
+variable "stack_name" {
   type    = string
 }
 
@@ -19,10 +15,6 @@ variable "azure_region" {
 }
 
 variable "deployed_by" {
-  type  = string
-}
-
-variable "stack_resource_group" {
   type  = string
 }
 
@@ -37,7 +29,6 @@ variable "app_tenant" {
 
 variable "databases" {
   type = list(object({
-    resource_group_name = string
     server_name         = string
     database_name       = string
     policy_weeks        = number
@@ -45,41 +36,27 @@ variable "databases" {
   }))
 }
 
-terraform {
-  backend "azurerm" {}
-}
-
-provider "azurerm" {
-  version = "=2.4.0"
-
-  subscription_id = var.subscription_id
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  tenant_id       = var.tenant_id
-
-  features {}
-}
-
 locals {
-  cluster_name          = "${var.target_env}-aks"
-  sql_server_name       = "${var.target_env}-sqlserver"
-  sql_server_epool_name = "${var.target_env}-sqlserver-epool"
+  cluster_name          = "${var.stack_name}-aks"
+  stack_resource_group  = "${var.azure_region}-${var.stack_name}-aks"
+  sql_server_name       = "${var.stack_name}-sqlserver"
+  sql_server_epool_name = "${var.stack_name}-sqlserver-epool"
   common_tags = {
-    deploymentDate  = formatdate("DD/MM/YYYY hh:mm:ss ZZZ", timestamp())
-    environmentType = var.target_env
-    deploymentBy    = var.deployed_by
+    DeploymentDate  = formatdate("DD/MM/YYYY hh:mm:ss ZZZ", timestamp())
+    StackName       = var.stack_name
+    DeployedBy      = var.deployed_by
   }
 }
 
 data "azurerm_sql_server" "stack_sql_server" {
-  name                = "${local.sql_server_name}"
-  resource_group_name = "${var.stack_resource_group}"
+  name                = local.sql_server_name
+  resource_group_name = local.stack_resource_group
 }
 
 data "azurerm_mssql_elasticpool" "sql_server_epool" {
-  name                = "${local.sql_server_epool_name}"
-  server_name         =  data.azurerm_sql_server.stack_sql_server.name
-  resource_group_name = "${var.stack_resource_group}"
+  name                = local.sql_server_epool_name
+  server_name         = data.azurerm_sql_server.stack_sql_server.name
+  resource_group_name = local.stack_resource_group
 }
 
 resource "azurerm_mssql_database" "sqldb" {
@@ -91,14 +68,13 @@ resource "azurerm_mssql_database" "sqldb" {
   sku_name        = "ElasticPool"
   tags = {
     displayName = var.databases[count.index].display_name
-    tenantId    = var.tenant_id
   }
 }
 
 resource "azurerm_template_deployment" "sql_ltr_policy" {
   depends_on          = [azurerm_mssql_database.sqldb]
   count               = length(var.databases)
-  resource_group_name = var.databases[count.index].resource_group_name
+  resource_group_name = local.stack_resource_group
   name                = "ltr-policy${var.databases[count.index].database_name}"
   deployment_mode     = "incremental"
   template_body       = <<DEPLOY

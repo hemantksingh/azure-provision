@@ -4,7 +4,7 @@ data "azurerm_client_config" "current" {
 resource "azurerm_key_vault" "tenant_kv" {
   name                = "${var.app_tenant.name}-kv"
   location            = var.azure_region
-  resource_group_name = var.stack_resource_group
+  resource_group_name = local.stack_resource_group
   tenant_id           = data.azurerm_client_config.current.tenant_id
   sku_name            = "standard"
   

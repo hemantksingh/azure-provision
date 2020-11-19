@@ -2,25 +2,45 @@ Provision AKS (Azure Kubernetes Service) cluster using `terraform`, `az` cli and
 
 ## Provision resources
 
+Following pre requisites are required for provisioning resources in azure using
+
+## Prerequisites
+
+- Microsoft [az cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
+- Hashicorp [terraform](https://www.hashicorp.com/products/terraform)
+- [Gnu make](http://gnuwin32.sourceforge.net/packages/make.htm) build utility (optional). On windows you can install make via [chocolatey](https://chocolatey.org/) `choco install make -y`
+- Ensure that you have a storage account in Azure to store terraform state in and get the [access key](https://docs.microsoft.com/en-us/azure/terraform/terraform-backend)
+
+### Getting started with azcli
+
+1. Sign in to azure cli `az login` and set your current subscription `az account set -s '<sub>'`
+3. Set the following environment variables:
+
 ```sh
-# Initialise terraform backend using access key https://www.terraform.io/docs/backends/types/azurerm.html
+# Initialise terraform remote backend in azure blob storage using access key https://www.terraform.io/docs/backends/types/azurerm.html
 BACKEND_STORAGE_ACCOUNT=xxxx
 BACKEND_CONTAINER=xxxx
-ARM_ACCESS_KEY=xxxx
-
-# Make terraform plan
-AZURE_SUBSCRIPTION_ID=xxxx
-AZURE_CLIENT_ID=xxxx
-AZURE_CLIENT_SECRET=xxxx
-AZURE_TENANT_ID=xxxx
-make plan-cluster
-
-# Provision resources
-make deploy-cluster
-
-# Deprovision resources
-make delete-cluster
+ARM_ACCESS_KEY="00000000-0000-0000-0000-000000000000"
 ```
+
+### Getting started with service principal
+
+If you aren't using interactive `az login` you can use an azure service principal for authenticating terraform with azure by exporting the following env vars
+
+```sh
+ARM_CLIENT_ID="00000000-0000-0000-0000-000000000000" #(App Id)
+ARM_CLIENT_SECRET="00000000-0000-0000-0000-000000000000" #(Password)
+ARM_SUBSCRIPTION_ID="00000000-0000-0000-0000-000000000000" #(Subscription)
+ARM_TENANT_ID="00000000-0000-0000-0000-0000000000" #(Tenant)
+```
+
+### Provision resources
+
+`make stack`
+
+### Destroy resources
+
+`make destroy-stack`
 
 ### Run provision resources in a container
 

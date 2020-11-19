@@ -29,7 +29,7 @@ define tfinit
 		-backend-config="key=$(2)"
 endef
 
-CLUSTER_KEY=$(AZURE_REGION)-$(STACK_NAME)
+CLUSTER_KEY=$(AZURE_REGION)-$(STACK_NAME)-aks
 cluster:
 ifeq ($(OS), Windows_NT)
 	$(call winconfig,$@)
@@ -67,29 +67,29 @@ destroy-sqlserver:
 		-var stack_name=$(STACK_NAME) \
 		-var azure_region=$(AZURE_REGION)
 
-TENANT_DIR=provisioning/tenant
-deploy-tenant:
-	pwsh $(TENANT_DIR)/tfconfig.ps1
-	cd $(TENANT_DIR) && terraform init \
-		-backend-config="storage_account_name=$(BACKEND_STORAGE_ACCOUNT)" \
-		-backend-config="container_name=$(BACKEND_CONTAINER)" \
-		-backend-config="key=$(TARGET_ENV)-$(AZURE_TENANT_ID).tfstate"
-	cd $(TENANT_DIR) && terraform plan \
-		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
-		-var client_id=$(AZURE_CLIENT_ID) \
-		-var client_secret=$(AZURE_CLIENT_SECRET) \
-		-var tenant_id=$(AZURE_TENANT_ID) \
-		-out $(TARGET_ENV)_tenant.tfplan
-	cd $(TENANT_DIR) && terraform apply "$(TARGET_ENV)_tenant.tfplan"
+TENANT_KEY=$(AZURE_REGION)-$(STACK_NAME)-tenant
+tenant:
+ifeq ($(OS), Windows_NT)
+	$(call winconfig,$@)
+else
+	$(call linuxconfig,$@)
+endif
+	$(call tfinit,$@,$(TENANT_KEY).tfstate) && \
+	terraform plan -out $(TENANT_KEY).tfplan
+ifeq ($(APPLY), true)
+	cd $(TERRAFORM_DIR)/$@ && \
+	terraform apply $(TENANT_KEY).tfplan
+else
+	@echo Skipping apply ...
+endif
 
-delete-tenant:
-	echo tenant
-	cd $(TENANT_DIR) && terraform destroy \
-		-var subscription_id=$(AZURE_SUBSCRIPTION_ID) \
-		-var client_id=$(AZURE_CLIENT_ID) \
-		-var client_secret=$(AZURE_CLIENT_SECRET) \
-		-var tenant_id=$(AZURE_TENANT_ID)
-	
+destroy-tenant:
+	cd $(TERRAFORM_DIR)/tenant && terraform destroy
+
+stack: cluster sqlserver tenant
+
+destroy-stack: destroy-tenant destroy-sqlserver destroy-cluster
+
 IMAGE?=hemantksingh/azurepaas
 TARGET_ENV?=dev
 APP_VERSION?=
