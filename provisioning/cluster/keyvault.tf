@@ -15,6 +15,7 @@ resource "azurerm_key_vault" "stack_kv" {
     key_permissions = [
       "create",
       "get",
+      "list"
     ]
 
     secret_permissions = [

@@ -15,6 +15,7 @@ resource "azurerm_key_vault" "tenant_kv" {
     key_permissions = [
       "create",
       "get",
+      "list"
     ]
 
     secret_permissions = [
@@ -30,7 +31,7 @@ resource "azurerm_key_vault" "tenant_kv" {
 }
 
 resource "azurerm_key_vault_secret" "tenant_id" {
-  name         = "TenantId"
+  name         = "tenantId"
   value        = var.app_tenant.id
   key_vault_id = azurerm_key_vault.tenant_kv.id
 

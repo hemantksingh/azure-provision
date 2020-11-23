@@ -61,7 +61,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   default_node_pool {
     name       = "${var.stack_name}nodes"
-    node_count = 3
+    node_count = 1
     vm_size    = "Standard_D2_v2"
     availability_zones = [1, 2, 3] # By defining node pools in a cluster to span multiple zones, nodes in a given node pool are able to continue operating even if a single zone goes down https://docs.microsoft.com/en-us/azure/aks/availability-zones
   }
